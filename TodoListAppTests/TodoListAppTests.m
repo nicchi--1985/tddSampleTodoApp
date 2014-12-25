@@ -6,35 +6,68 @@
 //  Copyright (c) 2014年 Ryosuke Tani. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
-#import <XCTest/XCTest.h>
+#import "Kiwi.h"
+#import "TodoTableViewController.h"
+#import "CustomTableViewCell.h"
+#import "TodoItem.h"
 
-@interface TodoListAppTests : XCTestCase
+SPEC_BEGIN(TodoListAppSpec)
+/*
+ 
+ Todoを追加する
+ Todoを完了させる
+ Todoを編集する
+ Todoを削除する
 
-@end
+ describe(@"テスト対象(オブジェクト)", ^{
+     context(@"状態(When)", ^{
+         describe(@"テスト対象メソッド", ^{
+             context(@"入力(With xx)", ^{
+                 it(@"期待する出力(should be xx)", ^{
+                     //テストコード
+                 });
+             });
+         });
+     });
+ });
+ 
+ scenario: Todoをリストに追加する
+ given: 前提条件
+ when: 注目する対象
+ then: 期待値(アウトプット)
+ 
+*/
 
-@implementation TodoListAppTests
 
-- (void)setUp {
-    [super setUp];
-    // Put setup code here. This method is called before the invocation of each test method in the class.
-}
+ 
+describe(@"新しいタスクを追加する", ^{
+    UIStoryboard *storyBoard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+    __block TodoTableViewController *viewController = [storyBoard instantiateViewControllerWithIdentifier:@"tableViewController"];
+        
+        context(@"textfieldに'firsttodo'入力した時", ^{
+            viewController.textField.text = @"firsttodo";
+            
+            describe(@"addボタン押下(pushedAddTodoBtn:)", ^{
+                [viewController pushedAddTodoBtn];
+                context(@"after the pushedAddTodoBtn: complete.", ^{
+                    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:0 inSection:0];
+                    UITableView *tableView = (UITableView*)[viewController.view viewWithTag:10];
+                    __block CustomTableViewCell *cell = [[CustomTableViewCell alloc] init];
+                    
+                    it(@"Todolistに'firstTodo' 追加されている", ^{
+                        cell = (CustomTableViewCell*)[viewController tableView:tableView cellForRowAtIndexPath:indexPath];
+                        [[expectFutureValue(cell.todoText.text) shouldEventually] equal:@"firsttodo"];
+                    });
+                });
+            });
+        });
+        context(@"when textfieldに何も入力しない", ^{
+            describe(@"pushedAddTodoBtn:", ^{
+                it(@"Todolist should have nothing", ^{
+                    // write test
+                });
+            });
+        });
+});
 
-- (void)tearDown {
-    // Put teardown code here. This method is called after the invocation of each test method in the class.
-    [super tearDown];
-}
-
-- (void)testExample {
-    // This is an example of a functional test case.
-    XCTAssert(YES, @"Pass");
-}
-
-- (void)testPerformanceExample {
-    // This is an example of a performance test case.
-    [self measureBlock:^{
-        // Put the code you want to measure the time of here.
-    }];
-}
-
-@end
+SPEC_END
